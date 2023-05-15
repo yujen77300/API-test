@@ -12,11 +12,11 @@ import (
 
 func main() {
 	database.DatabaseInit()
+	database.RedisInit()
 	migration.Migration()
 
 	r := gin.Default()
 
-	// 註冊validate 函數
 	if v, ok := binding.Validator.Engine().(*validator.Validate);ok{
 		v.RegisterValidation("pwdvaldation",middleware.PwdValidation)
 	}
