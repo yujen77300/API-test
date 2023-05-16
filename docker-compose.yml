@@ -10,7 +10,7 @@ services:
       - "MYSQL_PASSWORD=1qaz@WSX"
       - "MYSQL_DATABASE=senaoapi"
   api:
-    build: .
+    # build: .
     image: dylanhuang399/apiassignment
     ports:
       - "8080:8080"
