@@ -24,5 +24,5 @@ func newPool(addr string) *redis.Pool {
 
 
 func RedisInit() {
-	RedisPool = newPool("localhost:6379")
+	RedisPool = newPool("redis:6379")
 }
