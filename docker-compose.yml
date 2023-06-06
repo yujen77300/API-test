@@ -11,7 +11,7 @@ services:
       - "MYSQL_DATABASE=senaoapi"
   api:
     # build: .
-    image: dylanhuang399/apiassignment
+    image: dylanhuang399/apiassignment:v2
     ports:
       - "8080:8080"
     volumes:
