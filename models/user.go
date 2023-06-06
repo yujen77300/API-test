@@ -3,13 +3,18 @@ package models
 import (
 	"fmt"
 
+	"encoding/base64"
+
 	"github.com/yujen77300/API-test/database"
+	"github.com/yujen77300/API-test/service/utils"
+	"golang.org/x/crypto/scrypt"
 )
 
 type User struct {
 	Id       uint   `gorm:"primaryKey;autoIncrement"`
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Salt     string `json:"salt"`
 }
 
 type UserRequest struct {
@@ -63,10 +68,17 @@ func CreateUser(user UserRequest) UserResponse {
 		}
 	}
 
+	randomSalt := utils.GenerateSalt()
+
+	dk, _ := scrypt.Key([]byte(user.Password), []byte(randomSalt), 16384, 8, 1, 16)
+	hashedPassword := base64.StdEncoding.EncodeToString(dk)
+
 	newUser := User{
 		Username: user.Username,
-		Password: user.Password,
+		Password: hashedPassword,
+		Salt:     randomSalt,
 	}
+
 	database.DB.Create(&newUser)
 	return UserResponse{
 		Id:       newUser.Id,
@@ -84,7 +96,10 @@ func VerifyUser(user UserVerifiedRequest, wrongInputTime int) VerifyResponse {
 		}
 	}
 
-	if existingUser.Password != user.Password {
+	dk, _ := scrypt.Key([]byte(user.Password), []byte(existingUser.Salt), 16384, 8, 1, 16)
+	userHashedPassword := base64.StdEncoding.EncodeToString(dk)
+
+	if existingUser.Password != userHashedPassword {
 		return VerifyResponse{
 			Success:    false,
 			Reason:     "Incorrect password",
@@ -98,7 +113,6 @@ func VerifyUser(user UserVerifiedRequest, wrongInputTime int) VerifyResponse {
 		WrongTimes: 0,
 	}
 }
-
 
 func DeleteUser(id string) bool {
 	var user = User{}
